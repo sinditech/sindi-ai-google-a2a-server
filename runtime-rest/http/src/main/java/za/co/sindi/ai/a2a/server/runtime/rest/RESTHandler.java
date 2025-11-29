@@ -12,6 +12,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -29,6 +30,7 @@ import za.co.sindi.ai.a2a.server.requesthandlers.RequestHandler;
 import za.co.sindi.ai.a2a.server.runtime.impl.RESTCallContextBuilder;
 import za.co.sindi.ai.a2a.server.spi.AgentCardInfo;
 import za.co.sindi.ai.a2a.types.AgentCard;
+import za.co.sindi.ai.a2a.types.AuthenticatedExtendedCardNotConfiguredError;
 import za.co.sindi.ai.a2a.types.DeleteTaskPushNotificationConfigParams;
 import za.co.sindi.ai.a2a.types.Event;
 import za.co.sindi.ai.a2a.types.GetTaskPushNotificationConfigParams;
@@ -42,6 +44,7 @@ import za.co.sindi.ai.a2a.types.TaskIdParams;
 import za.co.sindi.ai.a2a.types.TaskPushNotificationConfig;
 import za.co.sindi.ai.a2a.types.TaskQueryParams;
 import za.co.sindi.ai.a2a.types.TransportProtocol;
+import za.co.sindi.ai.a2a.types.UnsupportedOperationError;
 
 /**
  * @author Buhake Sindi
@@ -60,15 +63,21 @@ public class RESTHandler {
 	private RequestHandler requestHandler;
 	
 	private volatile AgentCard agentCard;
+	private volatile AgentCard extendedAgentCard;
 	
 	@GET
 	@Path("/.well-known/agent-card.json")
 	@Produces(MediaType.APPLICATION_JSON)
 	public AgentCard getPublicAgentCard(@Context UriInfo uriInfo) {
+		String requestUrl = uriInfo.getRequestUri().toString();
 		if (agentCard == null) {
-			String requestUrl = uriInfo.getRequestUri().toString();
 			agentCardInfo.getPublicAgentCardBuilder().url(requestUrl).preferredTransport(TransportProtocol.HTTP_JSON);
 			agentCard = agentCardInfo.getPublicAgentCard();
+		}
+		
+		if (extendedAgentCard == null && agentCard != null && agentCard.getSupportsAuthenticatedExtendedCard() != null && agentCard.getSupportsAuthenticatedExtendedCard()) {
+			agentCardInfo.getExtendedAgentCardBuilder().url(requestUrl).preferredTransport(TransportProtocol.HTTP_JSON);
+			extendedAgentCard = agentCardInfo.getExtendedAgentCard();
 		}
 		
 		return agentCard;
@@ -94,6 +103,10 @@ public class RESTHandler {
 			@Context HttpHeaders httpHeaders,
 			@Suspended AsyncResponse asyncResponse,
 			SendMessageRequest request) {
+		if (agentCard == null || agentCard.getCapabilities() == null || agentCard.getCapabilities().streaming() == null || !agentCard.getCapabilities().streaming()) {
+			throw new A2AServerError(new UnsupportedOperationError("Streaming is not supported by the agent."));
+		}
+		
 		CallContextBuilder builder = new RESTCallContextBuilder(securityContext, httpHeaders.getRequestHeaders());
 		Publisher<Event> eventPublisher = requestHandler.onMessageSendStream(request.getParams(), builder.build());
 	}
@@ -141,6 +154,10 @@ public class RESTHandler {
 			@Context HttpHeaders httpHeaders,
 			@PathParam("id")String taskId,
 			CreateTaskPushNotificationConfigRequest request) {
+		if (agentCard == null || agentCard.getCapabilities() == null || agentCard.getCapabilities().pushNotifications() == null || !agentCard.getCapabilities().pushNotifications()) {
+			throw new A2AServerError(new PushNotificationNotSupportedError());
+		}
+		
 		CallContextBuilder builder = new RESTCallContextBuilder(securityContext, httpHeaders.getRequestHeaders());
 		return requestHandler.onSetTaskPushNotificationConfig(new TaskPushNotificationConfig(taskId, request.config().pushNotificationConfig()), builder.build());
 	}
@@ -171,25 +188,31 @@ public class RESTHandler {
 	@Produces(MediaType.APPLICATION_JSON)
 	public void deleteTaskPushNotificationConfig(@Context SecurityContext securityContext,
 			@Context HttpHeaders httpHeaders,
-			@PathParam("id")String taskId) {
+			@PathParam("id")String taskId,
+			@PathParam("configId")String configId) {
 		if (agentCard == null || agentCard.getCapabilities() == null || !agentCard.getCapabilities().pushNotifications()) {
 			throw new A2AServerError(new PushNotificationNotSupportedError());
 		}
 		
 		CallContextBuilder builder = new RESTCallContextBuilder(securityContext, httpHeaders.getRequestHeaders());
-		requestHandler.onDeleteTaskPushNotificationConfig(new DeleteTaskPushNotificationConfigParams(taskId), builder.build());
+		requestHandler.onDeleteTaskPushNotificationConfig(new DeleteTaskPushNotificationConfigParams(taskId, configId), builder.build());
 	}
 	
 	@GET
 	@Path("/v" + API_VERSION_NUMBER + "/card")
 	@Produces(MediaType.APPLICATION_JSON)
-	public AgentCard getAuthenticatedExtendedCard(@Context UriInfo uriInfo) {
-		if (agentCard != null && agentCard.getSupportsAuthenticatedExtendedCard()) {
-			String requestUrl = uriInfo.getRequestUri().toString();
-			agentCardInfo.getExtendedAgentCardBuilder().url(requestUrl).preferredTransport(TransportProtocol.HTTP_JSON);
-			return agentCardInfo.getExtendedAgentCard();
+	public AgentCard getAuthenticatedExtendedCard(@Context SecurityContext securityContext,
+			@Context UriInfo uriInfo) {
+		if (agentCard == null || agentCard.getSupportsAuthenticatedExtendedCard() == null || !agentCard.getSupportsAuthenticatedExtendedCard()) {
+			throw new A2AServerError(new AuthenticatedExtendedCardNotConfiguredError("Authenticated card not supported."));
+		}
+		if (securityContext.getUserPrincipal() == null) {
+			throw new NotAuthorizedException("Bearer", new Object[0]);
+		}
+		if (extendedAgentCard == null) {
+			throw new NotSupportedException();
 		}
 		
-		throw new NotAuthorizedException("Bearer", new Object[0]);
+		return extendedAgentCard;
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import za.co.sindi.ai.a2a.server.runtime.ExtendedAgentCardBuilder;
 import za.co.sindi.ai.a2a.server.runtime.PublicAgentCardBuilder;
+import za.co.sindi.ai.a2a.server.spi.AgentCapabilitiesBuilder;
 import za.co.sindi.ai.a2a.server.spi.AgentCardBuilder;
 import za.co.sindi.ai.a2a.server.spi.AgentCardInfo;
 import za.co.sindi.ai.a2a.types.AgentCard;
@@ -36,6 +37,12 @@ public class DefaultAgentCardInfo implements AgentCardInfo {
 		super();
 		this.publicAgentCardBuilder = Objects.requireNonNull(publicAgentCardBuilder, "A public agent card builder is required.");
 		this.extendedAgentCardBuilder = extendedAgentCardBuilder;
+	}
+
+	@Override
+	public AgentCapabilitiesBuilder getAgentCapabilitiesBuilder() {
+		// TODO Auto-generated method stub
+		return new DefaultAgentCapabilitiesBuilder();
 	}
 
 	@Override

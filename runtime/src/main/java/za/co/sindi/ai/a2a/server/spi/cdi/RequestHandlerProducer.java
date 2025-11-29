@@ -44,6 +44,6 @@ public final class RequestHandlerProducer {
 	
 	@Produces
 	public RequestHandler getRequestHandler() {
-		return new DefaultRequestHandler(agentExecutor, taskStore, queueManager, pushConfigStore.isResolvable() ? pushConfigStore.get() : null, pushSender.isResolvable() ? pushSender.get() : null, null, managedExecutorService);
+		return new DefaultRequestHandler(agentExecutor, taskStore, queueManager, pushConfigStore != null && pushConfigStore.isResolvable() ? pushConfigStore.get() : null, pushSender != null && pushSender.isResolvable() ? pushSender.get() : null, null, managedExecutorService);
 	}
 }

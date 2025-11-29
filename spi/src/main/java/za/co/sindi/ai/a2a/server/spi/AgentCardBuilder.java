@@ -5,6 +5,7 @@ package za.co.sindi.ai.a2a.server.spi;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import za.co.sindi.ai.a2a.types.AgentCapabilities;
 import za.co.sindi.ai.a2a.types.AgentCardSignature;
@@ -74,6 +75,11 @@ public interface AgentCardBuilder {
 	 * @param capabilities the capabilities to set
 	 */
 	public AgentCardBuilder capabilities(AgentCapabilities capabilities);
+	
+	/**
+	 * @param capabilities the capabilities to set
+	 */
+	public AgentCardBuilder capabilities(AgentCapabilitiesBuilder capabilitiesBuilder);
 
 	/**
 	 * @param securitySchemes the securitySchemes to set
@@ -99,6 +105,11 @@ public interface AgentCardBuilder {
 	 * @param skills the skills to set
 	 */
 	public AgentCardBuilder skills(AgentSkill... skills);
+	
+	/**
+	 * @param skills the skills to set
+	 */
+	public AgentCardBuilder skills(Set<AgentSkill> skills);
 
 	/**
 	 * @param signatures the signatures to set

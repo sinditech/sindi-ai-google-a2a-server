@@ -10,6 +10,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import jakarta.inject.Qualifier;
+
 
 /**
  * @author Buhake Sindi
@@ -48,4 +50,20 @@ public @interface Agent {
 	 * @return
 	 */
 	boolean supportsAuthenticatedExtendedCard() default false;
+	
+	/**
+	 * Default set of supported input MIME types for all skills, which can be
+	 * overridden on a per-skill basis.
+	 * @return
+	 */
+	String[] defaultInputModes();
+	
+	/**
+	 * Default set of supported output MIME types for all skills, which can be
+	 * overridden on a per-skill basis.
+	 * @return
+	 */
+	String[] defaultOutputModes();
+	
+	
 }

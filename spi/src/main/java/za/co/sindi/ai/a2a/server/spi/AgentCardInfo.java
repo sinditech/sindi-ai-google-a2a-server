@@ -10,7 +10,9 @@ import za.co.sindi.ai.a2a.types.AgentCard;
  * @since 15 November 2025
  */
 public interface AgentCardInfo {
-
+	
+	public AgentCapabilitiesBuilder getAgentCapabilitiesBuilder();
+	
 	public AgentCard getPublicAgentCard();
 	
 	public AgentCardBuilder getPublicAgentCardBuilder();
