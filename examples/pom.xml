@@ -4,15 +4,18 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>za.co.sindi</groupId>
-		<artifactId>sindi-ai-google-a2a-server</artifactId>
+		<artifactId>sindi-ai-a2a-server</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>sindi-ai-google-a2a-examples</artifactId>
+	<artifactId>sindi-ai-a2a-examples</artifactId>
 	<packaging>pom</packaging>
+	<name>Sindi AI Agent2Agent Server Examples</name>
+	<description>Agent2Agent Server Examples</description>
+	
 	<modules>
 		<module>agents</module>
-		<module>sindi-ai-google-a2a-server-rest</module>
+		<module>sindi-ai-a2a-server-rest</module>
 	</modules>
 
 	<properties>
@@ -25,12 +28,12 @@
 		<dependencies>
 			<dependency>
 				<groupId>za.co.sindi</groupId>
-				<artifactId>sindi-ai-google-a2a-server-runtime-rest-json-rpc</artifactId>
+				<artifactId>sindi-ai-a2a-server-runtime-rest-json-rpc</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>za.co.sindi</groupId>
-				<artifactId>sindi-ai-google-a2a-server-runtime-rest-http</artifactId>
+				<artifactId>sindi-ai-a2a-server-runtime-rest-http</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 		</dependencies>

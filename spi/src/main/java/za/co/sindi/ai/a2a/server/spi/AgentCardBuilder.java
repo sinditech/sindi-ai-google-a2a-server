@@ -77,7 +77,7 @@ public interface AgentCardBuilder {
 	public AgentCardBuilder capabilities(AgentCapabilities capabilities);
 	
 	/**
-	 * @param capabilities the capabilities to set
+	 * @param capabilitiesBuilder the capabilitiesBuilder to set
 	 */
 	public AgentCardBuilder capabilities(AgentCapabilitiesBuilder capabilitiesBuilder);
 

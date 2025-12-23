@@ -4,10 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>za.co.sindi</groupId>
-		<artifactId>sindi-ai-google-a2a-server</artifactId>
+		<artifactId>sindi-ai-a2a-server</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>sindi-ai-google-a2a-server-spi</artifactId>
+	<artifactId>sindi-ai-a2a-server-spi</artifactId>
+	<name>Sindi AI Agent2Agent Server SPI</name>
+	<description>Agent2Agent Server SPI</description>
 
 	<developers>
 		<developer>
@@ -27,7 +29,7 @@
 		</dependency>
 		<dependency>
 			<groupId>za.co.sindi</groupId>
-			<artifactId>sindi-ai-google-a2a</artifactId>
+			<artifactId>sindi-ai-a2a</artifactId>
 		</dependency>
 	</dependencies>
 </project>
